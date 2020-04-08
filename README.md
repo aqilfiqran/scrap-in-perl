@@ -1,10 +1,14 @@
 # Scrap in Perl
 
 ## Run Program
-- Run crawl : `perl crawl.pl ./data`
-![crawl](./doc/crawl.PNG)
-- Run clean : `perl clean.pl ./data`
-![clean](./doc/clean.PNG)
+- Run crawl 
+```
+    $   perl crawl.pl ./data
+```
+- Run clean :
+```
+    $   perl clean.pl ./data
+```
 
 ## Requirement
 - perl

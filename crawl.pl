@@ -12,19 +12,19 @@ my %hash;
 my $syntax;
 print "\ndalam proses ...\n";
 
-my $count=1;
+my $count=7501;
 
 my @links;
 while(0 eq 0){
-    # split to tekno and bola category
+    # split to tekno and travel category
     if($count <=7500){
-        $url="https://indeks.kompas.com/?site=money&date=".$time->ymd('-');
+        $url="https://indeks.kompas.com/?site=travel&date=".$time->ymd('-');
     }
     else{
         if($count == 7500){
             $time = DateTime->now();
         }
-        $url="https://indeks.kompas.com/?site=sains&date=".$time->ymd('-');
+        $url="https://www.tempo.co/indeks/".$time->ymd('/')."/tekno";
     }
 
     $mech->get($url);
@@ -36,10 +36,10 @@ while(0 eq 0){
             $hash{$link->url} = 1;
             $syntax = "wget -O $directory/";
 
-            if($link->url=~ /money.kompas.com\/read/){
-                $syntax.="money$count.html --no-hsts ".$link->url;
-            }elsif($link->url=~ /sains.kompas.com\/read/){
-                $syntax.="sains$count.html --no-hsts ".$link->url;
+            if($link->url=~ /travel.kompas.com\/read/){
+                $syntax.="travel$count.html --no-hsts ".$link->url;
+            }elsif($link->url=~ /tekno.tempo.co\/read/){
+                $syntax.="tekno".($count-7500).".html --no-hsts ".$link->url;
             }else{
                 next;
             }

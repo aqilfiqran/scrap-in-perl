@@ -11,12 +11,15 @@ my $extractor = HTML::ExtractContent->new;
 # Directory where clean data are stored, its better to set this in config file
 my $PATHCLEAN = "./clean";
 
+my @count=(0,0);
+my $category;
+my $process=0;
 print "On process get data from $ARGV[0] ...\n";
 foreach my $file(@files){ 
+    $process++;
     my $fileout = basename($file);
-
-    $fileout = "$PATHCLEAN/$fileout";
-
+    
+    $fileout = SourceFile($fileout);
     # open file
     open OUT, "> $fileout" or die "Cannot Open File!!!";
     binmode(OUT, "encoding(UTF-8)");
@@ -45,6 +48,9 @@ foreach my $file(@files){
 
     # close file
     close OUT;
+    if($process % 1000 == 0){
+        print "\nDone : $process\n";
+    }
 }
 
 print "\nSuccess...\n";
@@ -53,21 +59,31 @@ print "\nSuccess...\n";
 sub split_content{
     my @contents = split /\. /,$_[0];
     my $length = @contents;
-    my $part = int($length/3);
-    my $top='';
-    my $middle='';
-    my $bottom='';  
+    my $part = int($length/5);
+    my @sections=('','','','','');
     if($part != 0){
-        foreach my $i (0 .. $part){
-            $top.=$contents[$i].'. ';
-            $middle.=($i+$part)<$length? $contents[$i+$part].". ":'';
-            $bottom.=($i+($part * 2))<$length? $contents[$i+($part * 2)].". ":'';
+        my ($index , $iterate, $pattern) = (0 , 0, $length % 5);
+        my $isIterate = 0 eq 0;
+        foreach my $content (@contents){
+            $sections[$index].=$content.". ";
+            $iterate++;
+            if($iterate % $part == 0){
+                if($index + 1 <= $pattern && $isIterate){
+                    $iterate--;
+                    $isIterate = 1 eq 0;
+                }else{
+                    $index++;
+                    $isIterate = 0 eq 0;
+                }
+            }
         }
-            print OUT "<top>$top</top>\n";
-            print OUT "<middle>$middle</middle>\n";
-            print OUT "<bottom>$bottom</bottom>\n";
+        $index=1;
+        foreach my $section(@sections){
+            print OUT "<sec$index>$section</sec$index>\n";
+            $index++;
+        }
     }else{
-        print OUT "<top>unknown</top>\n<middle>unknown</middle>\n<bottom>unknown</bottom>\n"
+        print OUT "<sec1>unknown</sec1>\n<sec2>unknown</sec2>\n<sec3>unknown</sec3>\n<sec4>unknown</sec4>\n<sec5>unknown</sec5>\n";
     }
 }
 
@@ -84,4 +100,21 @@ sub clean_str {
     $str =~ s/\s+$//g;
     $str =~ s/^$//g;
     return $str;
+}
+
+sub SourceFile{
+    my $fileout = $_[0];
+
+    if($fileout =~ /tekno/){
+        $category = 0;
+    }elsif($fileout =~ /travel/){
+        $category = 1;
+    }
+    $count[$category]++;
+    if($count[$category] > 15000){
+        return "$PATHCLEAN/dictionary/$fileout";
+    }elsif($count[$category]>10000){
+        return "$PATHCLEAN/test/$fileout";
+    }
+    return "$PATHCLEAN/train/$fileout";
 }
